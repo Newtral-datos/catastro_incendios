@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa casas construidas sobre incendios</title>
+
+  <!-- Mapbox -->
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+
   <style>
+    /* Contenedor del mapa */
     #map-container {
       position: relative;
       width: 100%;
@@ -19,12 +23,9 @@
       border-radius: 12px;
       overflow: hidden;
     }
+    #map { width: 100%; height: 100%; }
 
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
+    /* Geocoder */
     #geocoder-container {
       position: absolute;
       top: 10px;
@@ -35,7 +36,6 @@
       justify-content: flex-end;
       pointer-events: none;
     }
-
     .mapboxgl-ctrl-geocoder {
       height: 36px !important;
       width: 100%;
@@ -43,7 +43,6 @@
       pointer-events: all;
       box-sizing: border-box;
     }
-
     .mapboxgl-ctrl-geocoder input {
       padding-left: 40px !important;
       background: white !important;
@@ -52,6 +51,7 @@
       box-sizing: border-box;
     }
 
+    /* Popup */
     .mapboxgl-popup-content {
       font-family: 'Helvetica', sans-serif;
       background: #ffffff;
@@ -63,18 +63,7 @@
       line-height: 1.5;
       border: none;
     }
-
-    .popup-titulo {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .popup-etiqueta {
-      font-weight: bold;
-      color: #555;
-    }
-
+    .popup-etiqueta { font-weight: bold; color: #555; }
     .popup-construccion {
       background-color: #01f3b3;
       color: #000;
@@ -86,73 +75,42 @@
       font-size: 16px;
     }
 
-    #legend-container {
+    /* === Leyenda vertical simple === */
+    #legend {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 6px;
-      padding: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       z-index: 1000;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       font-family: 'Helvetica', sans-serif;
-      max-width: 200px;
-      box-sizing: border-box;
-    }
-
-    #toggle-legend {
-      width: 100%;
-      background: #fff;
-      border: 2px solid #01f3b3;
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 600;
       color: #333;
-      cursor: pointer;
-      text-align: center;
+      max-width: 220px;
       box-sizing: border-box;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
     }
-
-    #toggle-legend:hover {
-      background: #f0fffa;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15);
-      transform: translateY(-1px);
-    }
-
-    #toggle-legend:active {
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-      transform: translateY(0);
-    }
-
-    #legend-content.collapsed {
-      display: none;
-    }
-
-    .legend-title {
+    #legend .legend-title {
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 6px;
-      color: #333;
     }
-
-    .legend-item {
+    #legend .legend-item {
       display: flex;
       align-items: center;
-      margin-bottom: 4px;
+      gap: 8px;
+      margin: 6px 0;
+      line-height: 1;
     }
-
-    .legend-color {
+    #legend .legend-color {
       width: 14px;
       height: 14px;
       border-radius: 3px;
-      margin-right: 6px;
-      border: 1px solid #ddd;
+      border: 1px solid #dcdcdc;
+      flex: 0 0 14px;
     }
-
-    .legend-text {
+    #legend .legend-text {
       font-size: 14px;
       color: #444;
       white-space: nowrap;
@@ -160,122 +118,21 @@
       text-overflow: ellipsis;
     }
 
-    @media screen and (max-width: 1024px) {
-      #legend-container {
-        top: 10px;
-        left: 5px;
-        max-width: 150px;
-        padding: 6px;
-      }
-
-      .legend-title {
-        font-size: 14px;
-        margin-bottom: 4px;
-      }
-
-      .legend-item {
-        margin-bottom: 3px;
-      }
-
-      .legend-color {
-        width: 12px;
-        height: 12px;
-        margin-right: 5px;
-      }
-
-      .legend-text {
-        font-size: 14px;
-      }
-
-      #geocoder-container {
-        left: 5px;
-        right: 5px;
-      }
-
-      .mapboxgl-ctrl-geocoder {
-        max-width: 200px;
-        height: 30px !important;
-        margin-right: 5px;
-      }
-
-      .mapboxgl-ctrl-geocoder input {
-        padding-left: 30px !important;
-        font-size: 12px;
-      }
-    }
-
-    @media screen and (max-width: 899px) {
-      .mapboxgl-ctrl-geocoder {
-        max-width: 180px;
-        height: 28px !important;
-        margin-right: 5px;
-      }
-
-      .mapboxgl-ctrl-geocoder input {
-        padding-left: 28px !important;
-        font-size: 11px;
-      }
-    }
-
-    @media screen and (max-width: 699px) {
-      #geocoder-container {
-        top: 10px;
-        justify-content: flex-end;
-        left: 5px;
-        right: 5px;
-      }
-
-      #legend-container {
-        top: 10px;
-        left: 5px;
-        max-width: 100px;
-        padding: 4px;
-      }
-
-      .legend-title {
-        font-size: 10px;
-        margin-bottom: 3px;
-      }
-
-      .legend-item {
-        margin-bottom: 2px;
-      }
-
-      .legend-color {
-        width: 8px;
-        height: 8px;
-        margin-right: 4px;
-      }
-
-      .legend-text {
-        font-size: 8px;
-      }
-
-      #toggle-legend {
-        padding: 4px 6px;
-        font-size: 10px;
-        border-width: 1.5px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.1);
-      }
-
-      #toggle-legend:hover {
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
-      }
-
-      #toggle-legend:active {
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-      }
-
+    /* Responsive */
+    @media (max-width: 699px) {
+      #geocoder-container { left: 5px; right: 5px; }
       .mapboxgl-ctrl-geocoder {
         max-width: 110px;
         height: 22px !important;
         margin-right: 5px;
       }
+      .mapboxgl-ctrl-geocoder input { padding-left: 36px !important; font-size: 10px; }
 
-      .mapboxgl-ctrl-geocoder input {
-        padding-left: 36px !important;
-        font-size: 8px;
-      }
+      #legend { top: 10px; left: 5px; padding: 6px 8px; }
+      #legend .legend-title { font-size: 12px; margin-bottom: 4px; }
+      #legend .legend-item { gap: 6px; margin: 4px 0; }
+      #legend .legend-color { width: 12px; height: 12px; }
+      #legend .legend-text { font-size: 12px; }
     }
   </style>
 </head>
@@ -283,10 +140,21 @@
   <div id="map-container">
     <div id="map"></div>
     <div id="geocoder-container"></div>
-      <button id="toggle-legend">Mostrar leyenda</button>
-      <div id="legend-content" class="collapsed"></div>
+
+    <!-- Leyenda vertical simple -->
+    <div id="legend" role="group" aria-label="Leyenda del mapa">
+      <div class="legend-title"></div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color:#ff0001;"></span>
+        <span class="legend-text">Áreas quemadas</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color:#01f3b3;"></span>
+        <span class="legend-text">Nuevas construcciones</span>
+      </div>
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
