@@ -211,6 +211,24 @@ document.addEventListener("DOMContentLoaded", function () {
       popup.remove();
     });
 
+    // Leyenda
+    const legendContent = document.getElementById('legend-content');
+
+    legendContent.innerHTML = `
+      <div class="legend-title">Leyenda</div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color:#ff0001;"></span>
+        <span class="legend-text">Áreas quemadas</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color:#01f3b3;"></span>
+        <span class="legend-text">Nuevas construcciones</span>
+      </div>
+    `;
+
+    // Agregar la leyenda al contenedor del mapa
+    map.getContainer().appendChild(legendContent);
+
     // Geocoder para búsqueda
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
