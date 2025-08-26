@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const commune   = p.COMMUNE || '—';
       const province  = p.PROVINCE || '—';
       const hectareas = (p.HECTAREAS != null && !isNaN(p.HECTAREAS))
-        ? Number(p.HECTAREAS).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-        : '—';
+      ? Number(p.HECTAREAS).toFixed(3).replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+      : '—';    
       return `
         <div>
           <div><span class="popup-etiqueta">Hectáreas quemadas:</span> <span class="popup-construccion">${hectareas}</span></div>
