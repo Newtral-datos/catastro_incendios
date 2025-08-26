@@ -92,10 +92,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Definición de capas
     const capas = [
       {
-        source: 'incendios_copernicus-8ty55v',
-        url: 'mapbox://newtral.7wejuxka',
-        sourceLayer: 'incendios_14_08_2025',
-        id: 'incendios_14_08_2025',
+        source: 'incendios_mapa_catastro-axzq1y',
+        url: 'mapbox://newtral.4qz8msq5',
+        sourceLayer: 'incendios_26_08_2025',
+        id: 'incendios_26_08_2025',
         type: 'fill',
         paint: {
           'fill-color': '#ff0001',
